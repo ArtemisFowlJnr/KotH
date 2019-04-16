@@ -121,14 +121,24 @@ def tournament(bots, game, per_game=[2], t_type='ao'):
     Returns a dictionary of filename: points
     """
     scores = {}
-    for b in bots:
-        scores[b] = 0
-    for a in bots:
+    if t_type.startswith('a'):
         for b in bots:
-            if a != b:
-                scores[round_(a, b)] += 1
+            scores[b] = 0
+        played = []
+        o = t_type.endswith('o')
+        for a in bots:
+            for b in bots:
+                if a != b and (get_action((a, b), key=id) in played or not o):
+                    scores[game(a, b)] += 1
+    elif t_type.startswith('e'):
+        played = {}
+        for i in bots:
+            played[i] = 0
+        while played[min(lambda x: played[x], played)] != played[max(lambda x: played[x], played)]:
+            gbots = sorted(played, key=lambda x: played[x])[:2]
+            scores[game(*gbots)] += 1
     return scores
-    ### above is for defaults only, FIXME
+    ### above is not fully implemented, FIXME
 
 
 def table(scores):
